@@ -12,8 +12,8 @@ module NIFTI
     attr_reader :extended_header
     # An array of decoded image values
     attr_reader :image_rubyarray
-    # A narray of image values reshapred to image dimensions
-    attr_reader :image_narray
+    # A nmatrix of image values reshapred to image dimensions
+    attr_reader :image_nmatrix
     
     # Valid Magic codes for the NIFTI Header
     MAGIC = %w{ni1 n+1}
@@ -24,7 +24,7 @@ module NIFTI
     # 
     # NIFTI header extensions are not yet supported and are not included in the header.
     #
-    # The header and image are accessible via the hdr and image instance variables.  An optional narray matrix may also be available in image_narray if desired by passing in :narray => true as an option.
+    # The header and image are accessible via the hdr and image instance variables.  An optional nmatrix matrix may also be available in image_narray if desired by passing in :nmatrix => true as an option.
     #
     # === Parameters
     #
@@ -35,10 +35,10 @@ module NIFTI
     #
     # * <tt>:bin</tt> -- Boolean. If set to true, string parameter will be interpreted as a binary NIFTI string, and not a path string, which is the default behaviour.
     # * <tt>:image</tt> -- Boolean. If set to true, automatically load the image into @image, otherwise only a header is collected and you can get an image
-    # * <tt>:narray</tt> -- Boolean.  If set to true, a properly shaped narray matrix will be set in the instance variable @image_narray.  Automatically sets :image => true
+    # * <tt>:nmatrix</tt> -- Boolean.  If set to true, a properly shaped nmatrix will be set in the instance variable @image_narray.  Automatically sets :image => true
     #
     def initialize(source=nil, options={})
-      options[:image] = true if options[:narray]
+      options[:image] = true if options[:nmatrix]
       @msg = []
       @success = false
       set_stream(source, options)
@@ -63,19 +63,19 @@ module NIFTI
       @image_rubyarray = @stream.decode(@stream.rest_length, type)
     end
     
-    # Create an narray if the NArray is available 
+    # Create an nmatrix if the NMatrix is available 
     # Tests if a file is readable, and if so, opens it.
     #
     # === Parameters
     #
     # * <tt>image_array</tt> -- Array. A vector of image data.
-    # * <tt>dim</tt> -- Array. The dim array from the nifti header, specifing number of dimensions (dim[0]) and dimension length of other dimensions to reshape narray into.
+    # * <tt>dim</tt> -- Array. The dim array from the nifti header, specifing number of dimensions (dim[0]) and dimension length of other dimensions to reshape nmatrix into.
     # 
-    def get_image_narray(image_array, dim)
-      if defined? NArray
-        @image_narray = pixel_data = NArray.to_na(image_array).reshape!(*dim[1..dim[0]])
+    def get_image_nmatrix(image_array, dim)
+      if defined? NMatrix
+        @image_narray = pixel_data = NMatrix.new(image_array, :float32).reshape(*dim[1..dim[0]])
       else
-        add_msg "Can't find NArray, no image_narray created.  Please `gem install narray`"
+        add_msg "Can't find NMatrix, no image_narray created.  Please `gem install nmatrix`"
       end
     end
     
@@ -115,7 +115,7 @@ module NIFTI
       
       # Optional image gathering
       read_image if options[:image] 
-      get_image_narray(@image_rubyarray, @hdr['dim']) if options[:narray]
+      get_image_nmatrix(@image_rubyarray, @hdr['dim']) if options[:nmatrix]
       
       @success = true
     end

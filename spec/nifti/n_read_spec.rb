@@ -59,22 +59,22 @@ describe NIFTI::NRead do
     # Since this is a fixture, we know exactly what the values are.
     # Pick some from the middle of the string and test them.
     obj.image_rubyarray[(@fixture_image_length / 2)..(@fixture_image_length/2 + 100)].should == [0, 0, 0, 0, 18, 36, 25, 23, 19, 23, 13, 14, 16, 16, 12, 16, 22, 17, 13, 17, 19, 24, 19, 14, 11, 16, 49, 81, 129, 194, 216, 175, 130, 128, 146, 154, 159, 205, 304, 391, 414, 380, 320, 281, 297, 343, 358, 322, 287, 339, 450, 493, 426, 344, 310, 285, 275, 290, 282, 283, 310, 278, 268, 222, 49, 284, 235, 172, 116, 108, 115, 112, 135, 176, 196, 200, 216, 207, 86, 30, 152, 161, 138, 117, 81, 47, 73, 207, 381, 459, 415, 346, 353, 429, 490, 503, 492, 454, 379, 304, 275]
-    obj.image_narray.should be_nil
+    obj.image_nmatrix.should be_nil
   end
   
-  it "should return an narray if requested" do
-    obj = NRead.new(@string, :bin => true, :narray => true)
-    obj.image_narray.should_not be_nil
+  it "should return an nmatrix if requested" do
+    obj = NRead.new(@string, :bin => true, :nmatrix => true)
+    obj.image_nmatrix.should_not be_nil
   end
   
   it "should add an NArray Install message and not set the image_narray if NArray was not available" do
-    Object.send(:remove_const, :NArray)
-    obj = NRead.new(@string, :bin => true, :narray => true)
+    Object.send(:remove_const, :NMatrix)
+    obj = NRead.new(@string, :bin => true, :nmatrix => true)
     obj.msg.should_not be_empty
-    obj.msg.grep(/Please `gem install narray`/).empty?.should be_false
-    obj.image_narray.should be_nil
+    obj.msg.grep(/Please `gem install nmatrix`/).empty?.should be_false
+    obj.image_nmatrix.should be_nil
     obj.image_rubyarray.size.should == @fixture_image_length
-    require 'narray'
+    require 'nmatrix'
   end
   
   it "should read extended header attributes" do

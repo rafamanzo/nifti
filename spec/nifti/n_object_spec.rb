@@ -66,8 +66,8 @@ describe NIFTI::NObject do
     
   end
   
-  it "should read a nifti file with image as narray" do
-    obj = NObject.new(NIFTI_TEST_FILE1, :image => true, :narray => true)
+  it "should read a nifti file with image as nmatrix" do
+    obj = NObject.new(NIFTI_TEST_FILE1, :image => true, :nmatrix => true)
     
     obj.header.should == @valid_header
     obj.extended_header.should_not be_empty
@@ -75,7 +75,7 @@ describe NIFTI::NObject do
     obj.extended_header.first[:ecode].should == 4
     obj.extended_header.first[:data].length.should == @fixture_afni_extension_length
     obj.image.should_not be_nil
-    obj.image.class.should == NArray
+    obj.image.class.should == NMatrix
     obj.image.dim.should == 3
     
   end

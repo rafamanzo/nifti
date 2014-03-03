@@ -16,8 +16,8 @@ require 'nifti/stream'
 require 'nifti/constants'
 
 begin
-  require 'narray'
+  require 'nmatrix'
 rescue LoadError => e
-  puts "NArray requried for some image visualization options."
-  puts "Run 'gem install narray' or 'bundle install' to get it."
+  puts "NMatrix requried for some image visualization options."
+  puts "Run 'gem install nmatrix' or 'bundle install' to get it."
 end

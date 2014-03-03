@@ -15,7 +15,7 @@ module NIFTI
     attr_accessor :header
     # A hash of extended attributes
     attr_accessor :extended_header
-    # An array or narray of image values
+    # An array or nmatrix of image values
     attr_accessor :image
 
     # Creates an NObject instance (NObject is an abbreviation for "NIFTI object").
@@ -35,15 +35,15 @@ module NIFTI
     # * <tt>:syntax</tt> -- String. If a syntax string is specified, the DRead class will be forced to use this transfer syntax when decoding the file/binary string.
     # * <tt>:verbose</tt> -- Boolean. If set to false, the NObject instance will run silently and not output warnings and error messages to the screen. Defaults to true.
     # * <tt>:image</tt> -- Boolean. If set to true, automatically load the image into @image, otherwise only a header is collected and you can get an image from #get_image
-    # * <tt>:narray</tt> -- Boolean. If set to true, the NObject will build a properly shaped narray from the image data.
+    # * <tt>:nmatrix</tt> -- Boolean. If set to true, the NObject will build a properly shaped nmatrix from the image data.
     #
     # === Examples
     #
     #   # Load a NIFTI file's header information:
     #   require 'nifti'
     #   obj = NIFTI::NObject.new("test.nii")
-    #   # Read a NIFTI header and image into a numerical-ruby narray:
-    #   obj = Nfiti::NObject.new("test.nii", :image => true, :narray => true)
+    #   # Read a NIFTI header and image into a numerical-ruby nmatrix:
+    #   obj = Nfiti::NObject.new("test.nii", :image => true, :nmatrix => true)
     #   # Create an empty NIfTI object & choose non-verbose behaviour:
     #   obj = NIFTI::NObject.new(nil, :verbose => false)
     #
@@ -123,8 +123,8 @@ module NIFTI
           # Update instance variables based on the properties of the NRead object:
           @header = r.hdr
           @extended_header = r.extended_header
-          if r.image_narray
-            @image = r.image_narray 
+          if r.image_nmatrix
+            @image = r.image_nmatrix 
           elsif r.image_rubyarray
             @image = r.image_rubyarray
           end
