@@ -16,6 +16,8 @@ module NIFTI
     attr_reader :image_rubyarray
     # A narray of image values reshapred to image dimensions
     attr_reader :image_narray
+    # Flag for GZip
+    attr_reader :gzip
 
     # Valid Magic codes for the NIFTI Header
     MAGIC = %w{ni1 n+1}
@@ -43,6 +45,7 @@ module NIFTI
       options[:image] = true if options[:narray]
       @msg = []
       @success = false
+      @gzip = false
       set_stream(source, options)
       parse_header(options)
 
@@ -100,7 +103,6 @@ module NIFTI
         else
           # Extract the content of the file to a binary string:
           @str = @file.read
-          @file.close
         end
       end
 
@@ -111,7 +113,24 @@ module NIFTI
 
     # Parse the NIFTI Header.
     def parse_header(options = {})
-      check_header
+      begin
+        check_header
+      # There is a specific gziped file (unfortunately it is confidential) which calling the read method returns less bytes than the expected. Failling back to byte per byte read solves, but it is really slow.
+      rescue IOError => e
+        if @gzip
+          puts "Warning: Bad gzip compression detected. Trying fall back to byte per byte mode."
+          @str = ""
+          @file.rewind
+          @file.each_byte { |byte| @str << byte }
+          @stream = Stream.new(@str, false)
+          check_header
+        else
+          raise e
+        end
+      ensure
+        @file.close
+      end
+
       @hdr = parse_basic_header
       @extended_header = parse_extended_header
 
@@ -217,8 +236,10 @@ module NIFTI
             if File.size(file) > 8
               begin
                 @file = Zlib::GzipReader.new(File.new(file, "rb"))
+                @gzip = true
               rescue Zlib::GzipFile::Error
                 @file = File.new(file, "rb")
+                @gzip = false
               end
             else
               @msg << "Error! File is too small to contain DICOM information (#{file})."
